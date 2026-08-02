@@ -1,13 +1,68 @@
 ﻿using System;
-#region Task 5
-DeliveryAddress address = new DeliveryAddress("Cairo", "Tahrir St", 10);
-Shipment ship = new Shipment("TR101", "Laptop", 2.5, 100.0m, address);
+#region 6
+DeliveryAddress address1 = new DeliveryAddress("Cairo", "Tahrir St", 10);
+DeliveryAddress address2 = address1;
+
+address2.City = "Alexandria";
+
+Console.WriteLine("Addr1: " + address1.GetFullAddress());
+Console.WriteLine("Addr2: " + address2.GetFullAddress());
+Console.WriteLine("--------------------------------");
 
 DeliveryCenter center = new DeliveryCenter();
-center.AddShipment(ship);
 
-Shipment result = center["TR101"];
-result.PrintShipment();
+for (int i = 0; i < 3; i++)
+{
+    Console.WriteLine("Enter Shipment " + (i + 1) + " details:");
+
+    Console.Write("Tracking Code: ");
+    string code = Console.ReadLine();
+
+    Console.Write("Description: ");
+    string desc = Console.ReadLine();
+
+    Console.Write("Weight: ");
+    double weight = double.Parse(Console.ReadLine());
+
+    Console.Write("Delivery Fee: ");
+    decimal fee = decimal.Parse(Console.ReadLine());
+
+    Console.Write("City: ");
+    string city = Console.ReadLine();
+
+    Console.Write("Street: ");
+    string street = Console.ReadLine();
+
+    Console.Write("Building Number: ");
+    int building = int.Parse(Console.ReadLine());
+
+    DeliveryAddress address = new DeliveryAddress(city, street, building);
+    Shipment shipment = new Shipment(code, desc, weight, fee, address);
+
+    center.AddShipment(shipment);
+    Console.WriteLine("----------------------");
+}
+Console.WriteLine("All Shipments:");
+for (int i = 0; i < 3; i++)
+{
+    Shipment s = center[i];
+    s.PrintShipment();
+    Console.WriteLine("------------------------");
+}
+Console.Write("Enter tracking code to search: ");
+string searchCode = Console.ReadLine();
+
+Shipment foundShipment = center[searchCode];
+
+if (foundShipment.TrackingCode != null && foundShipment.TrackingCode != "")
+{
+    Console.WriteLine("Shipment Found:");
+    foundShipment.PrintShipment();
+}
+else
+{
+    Console.WriteLine("Shipment not found.");
+}
 public struct DeliveryAddress
 {
     public string City;
@@ -26,7 +81,6 @@ public struct DeliveryAddress
         return BuildingNumber + " " + Street + ", " + City;
     }
 }
-
 public struct Shipment
 {
     private string trackingCode;
@@ -36,45 +90,60 @@ public struct Shipment
 
     public string TrackingCode
     {
-        get { 
-               return trackingCode; }
-        private set { 
-            if (!string.IsNullOrWhiteSpace(value)) 
-                trackingCode = value; }
+        get { return trackingCode; }
+        private set
+        {
+            if (value != "")
+            {
+                trackingCode = value;
+            }
+        }
     }
 
     public string Description
     {
-        get { 
-            return description; }
-        set { 
-            if (!string.IsNullOrWhiteSpace(value)) 
-                description = value; }
+        get { return description; }
+        set
+        {
+            if (value != "")
+            {
+                description = value;
+            }
+        }
     }
 
     public double Weight
     {
-        get { 
-            return weight; }
-        set { 
+        get { return weight; }
+        set
+        {
             if (value > 0)
-                weight = value; }
+            {
+                weight = value;
+            }
+        }
     }
 
     public decimal DeliveryFee
     {
-        get { 
-            return deliveryFee; }
-        private set { 
-            if (value > 0) 
-                deliveryFee = value; }
+        get { return deliveryFee; }
+        private set
+        {
+            if (value > 0)
+            {
+                deliveryFee = value;
+            }
+        }
     }
 
     public DeliveryAddress Destination { get; set; }
 
     public decimal EstimatedCost
     {
-        get { return deliveryFee + (decimal)(weight * 5); }
+        get
+        {
+            return deliveryFee + (decimal)(weight * 5);
+        }
     }
 
     public Shipment(string trackingCode)
@@ -85,7 +154,6 @@ public struct Shipment
         deliveryFee = 50;
         Destination = new DeliveryAddress("Default", "Default", 1);
     }
-
     public Shipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
     {
         this.trackingCode = trackingCode;
@@ -94,19 +162,23 @@ public struct Shipment
         this.deliveryFee = deliveryFee;
         Destination = destination;
     }
-
     public void UpdateDeliveryFee(decimal newFee)
     {
-        if (newFee > 0) 
+        if (newFee > 0)
+        {
             deliveryFee = newFee;
+        }
     }
-
     public void PrintShipment()
     {
-        Console.WriteLine("Code:" + TrackingCode + " | Desc:" + Description + " | Cost:" + EstimatedCost);
+        Console.WriteLine("Code: " + TrackingCode);
+        Console.WriteLine("Desc: " + Description);
+        Console.WriteLine("Weight: " + Weight);
+        Console.WriteLine("Fee: " + DeliveryFee);
+        Console.WriteLine("Address: " + Destination.GetFullAddress());
+        Console.WriteLine("Estimated Cost: " + EstimatedCost);
     }
 }
-
 public struct DeliveryCenter
 {
     private Shipment[] shipments;
@@ -120,11 +192,21 @@ public struct DeliveryCenter
 
     public Shipment this[int index]
     {
-        get { return (index >= 0 && index < count) ? 
-                shipments[index] : 
-                default; }
-        set { if (index >= 0 && index < count) 
-                shipments[index] = value; }
+        get
+        {
+            if (index >= 0 && index < count)
+            {
+                return shipments[index];
+            }
+            return default;
+        }
+        set
+        {
+            if (index >= 0 && index < count)
+            {
+                shipments[index] = value;
+            }
+        }
     }
 
     public Shipment this[string trackingCode]
@@ -133,7 +215,10 @@ public struct DeliveryCenter
         {
             for (int i = 0; i < count; i++)
             {
-                if (shipments[i].TrackingCode == trackingCode) return shipments[i];
+                if (shipments[i].TrackingCode == trackingCode)
+                {
+                    return shipments[i];
+                }
             }
             return default;
         }
