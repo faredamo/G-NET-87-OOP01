@@ -1,5 +1,6 @@
 ﻿#region Task 3
 using System;
+using System;
 
 DeliveryAddress address1 = new DeliveryAddress("Cairo", "Tahrir St", 10);
 DeliveryAddress address2 = address1;
@@ -9,17 +10,15 @@ address2.BuildingNumber = 99;
 
 Console.WriteLine(address1.GetFullAddress());
 Console.WriteLine(address2.GetFullAddress());
+Console.WriteLine("------------------");
+Shipment ship1 = new Shipment("TR101");
+Shipment ship2 = new Shipment("TR102", "Laptop",2.5, 100.0m, address1);
 
-Shipment ship = new Shipment("TRK101", "Laptop", 2.5, 50.0m, address1);
-
-ship.Weight = -10;
-
-Console.WriteLine(ship.TrackingCode);
-Console.WriteLine(ship.Description);
-Console.WriteLine(ship.Weight);
-Console.WriteLine(ship.DeliveryFee);
-Console.WriteLine(ship.Destination.GetFullAddress());
-Console.WriteLine(ship.EstimatedCost);
+ship1.UpdateDeliveryFee(75.0m);
+ship2.Weight = -10;
+ship1.PrintShipment();
+Console.WriteLine("-------------------");
+ship2.PrintShipment();
 
 public struct DeliveryAddress
 {
@@ -105,18 +104,49 @@ public struct Shipment
         }
     }
 
-    public Shipment(string code, string desc, double w, decimal fee, DeliveryAddress address)
+    public Shipment(string trackingCode)
     {
-        trackingCode = "";
-        description = "";
-        weight = 1;
-        deliveryFee = 1;
+        this.trackingCode = "";
+        this.description = "";
+        this.weight = 1;
+        this.deliveryFee = 1;
 
-        TrackingCode = code;
-        Description = desc;
-        Weight = w;
-        DeliveryFee = fee;
-        Destination = address;
+        TrackingCode = trackingCode;
+        Description = "Unknown";
+        Weight = 1;
+        DeliveryFee = 50;
+        Destination = new DeliveryAddress("Default City", "Default Street", 1);
+    }
+
+    public Shipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
+    {
+        this.trackingCode = "";
+        this.description = "";
+        this.weight = 1;
+        this.deliveryFee = 1;
+
+        TrackingCode = trackingCode;
+        Description = description;
+        Weight = weight;
+        DeliveryFee = deliveryFee;
+        Destination = destination;
+    }
+
+    public void UpdateDeliveryFee(decimal newFee)
+    {
+        if (newFee > 0)
+        {
+            deliveryFee = newFee;
+        }
+    }
+
+    public void PrintShipment()
+    {
+        Console.WriteLine("Tracking Code: " + TrackingCode);
+        Console.WriteLine("Description: " + Description);
+        Console.WriteLine("Weight: " + Weight);
+        Console.WriteLine("Delivery Fee: " + DeliveryFee);
+        Console.WriteLine("Destination: " + Destination.GetFullAddress());
+        Console.WriteLine("Estimated Cost: " + EstimatedCost);
     }
 }
-#endregion
