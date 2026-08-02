@@ -1,61 +1,74 @@
-﻿using G_NET_87_OOP01;
+﻿#region Task 3
 using System;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-#region 1
 
-// (a) DeliveryAddress (Struct(Value Type))
-DeliveryAddress address1 = new DeliveryAddress { City = "Cairo", Street = "Nasr City" };
+DeliveryAddress address1 = new DeliveryAddress("Cairo", "Tahrir St", 10);
 DeliveryAddress address2 = address1;
+
 address2.City = "Alexandria";
+address2.BuildingNumber = 99;
 
-// (b) Customer (Class(Reference Type))
-Customer customer1 = new Customer { Name = "Fareda" };
-Customer customer2 = customer1;
-customer2.Name = "Ali";
+Console.WriteLine(address1.GetFullAddress());
+Console.WriteLine(address2.GetFullAddress());
 
-#endregion
+Shipment ship = new Shipment("TRK101", "Laptop", 2.5, 50.0m, address1);
 
-#region Types Definition (Namespace & Classes)
-namespace G_NET_87_OOP01
+ship.Weight = -10;
+
+Console.WriteLine(ship.TrackingCode);
+Console.WriteLine(ship.Description);
+Console.WriteLine(ship.Weight);
+Console.WriteLine(ship.DeliveryFee);
+Console.WriteLine(ship.Destination.GetFullAddress());
+Console.WriteLine(ship.EstimatedCost);
+
+public struct DeliveryAddress
 {
-    public struct DeliveryAddress
+    public string City;
+    public string Street;
+    public int BuildingNumber;
+
+    public DeliveryAddress(string city, string street, int buildingNumber)
     {
-        public string City;
-        public string Street;
+        City = city;
+        Street = street;
+        BuildingNumber = buildingNumber;
     }
-    public class Customer
+
+    public string GetFullAddress()
     {
-        public string Name;
+        return BuildingNumber + " " + Street + ", " + City;
     }
 }
-#endregion
 
-#region Task 2
-//(a) Identify at least three problems with this design from an encapsulation perspective.
-//(b) How can private fields and public properties improve this design?
-//Encapsulation protects internal data from bad values
-Shipment ship = new Shipment();
-ship.Description = "Electronics";
-ship.Weight = 5.5;
-ship.DeliveryFee = 50.0m;
-
-Console.WriteLine($"Description: {ship.Description}");
-Console.WriteLine($"Weight: {ship.Weight}");
-Console.WriteLine($"Fee: {ship.DeliveryFee}");
-
-#endregion
-
-
-#region Types Definition
 public struct Shipment
 {
+    private string trackingCode;
     private string description;
     private double weight;
     private decimal deliveryFee;
+
+    public string TrackingCode
+    {
+        get { return trackingCode; }
+        private set
+        {
+            if (string.IsNullOrWhiteSpace(value) == false)
+            {
+                trackingCode = value;
+            }
+        }
+    }
+
     public string Description
     {
         get { return description; }
-        set { description = value; }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value) == false)
+            {
+                description = value;
+            }
+        }
     }
 
     public double Weight
@@ -63,7 +76,7 @@ public struct Shipment
         get { return weight; }
         set
         {
-            if (value >= 0)
+            if (value > 0)
             {
                 weight = value;
             }
@@ -73,13 +86,37 @@ public struct Shipment
     public decimal DeliveryFee
     {
         get { return deliveryFee; }
-        set
+        private set
         {
-            if (value >= 0)
+            if (value > 0)
             {
                 deliveryFee = value;
             }
         }
+    }
+
+    public DeliveryAddress Destination { get; set; }
+
+    public decimal EstimatedCost
+    {
+        get
+        {
+            return deliveryFee + (decimal)(weight * 5);
+        }
+    }
+
+    public Shipment(string code, string desc, double w, decimal fee, DeliveryAddress address)
+    {
+        trackingCode = "";
+        description = "";
+        weight = 1;
+        deliveryFee = 1;
+
+        TrackingCode = code;
+        Description = desc;
+        Weight = w;
+        DeliveryFee = fee;
+        Destination = address;
     }
 }
 #endregion
