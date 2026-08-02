@@ -1,25 +1,13 @@
-﻿#region Task 3
-using System;
-using System;
+﻿using System;
+#region Task 5
+DeliveryAddress address = new DeliveryAddress("Cairo", "Tahrir St", 10);
+Shipment ship = new Shipment("TR101", "Laptop", 2.5, 100.0m, address);
 
-DeliveryAddress address1 = new DeliveryAddress("Cairo", "Tahrir St", 10);
-DeliveryAddress address2 = address1;
+DeliveryCenter center = new DeliveryCenter();
+center.AddShipment(ship);
 
-address2.City = "Alexandria";
-address2.BuildingNumber = 99;
-
-Console.WriteLine(address1.GetFullAddress());
-Console.WriteLine(address2.GetFullAddress());
-Console.WriteLine("------------------");
-Shipment ship1 = new Shipment("TR101");
-Shipment ship2 = new Shipment("TR102", "Laptop",2.5, 100.0m, address1);
-
-ship1.UpdateDeliveryFee(75.0m);
-ship2.Weight = -10;
-ship1.PrintShipment();
-Console.WriteLine("-------------------");
-ship2.PrintShipment();
-
+Shipment result = center["TR101"];
+result.PrintShipment();
 public struct DeliveryAddress
 {
     public string City;
@@ -48,105 +36,118 @@ public struct Shipment
 
     public string TrackingCode
     {
-        get { return trackingCode; }
-        private set
-        {
-            if (string.IsNullOrWhiteSpace(value) == false)
-            {
-                trackingCode = value;
-            }
-        }
+        get { 
+               return trackingCode; }
+        private set { 
+            if (!string.IsNullOrWhiteSpace(value)) 
+                trackingCode = value; }
     }
 
     public string Description
     {
-        get { return description; }
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value) == false)
-            {
-                description = value;
-            }
-        }
+        get { 
+            return description; }
+        set { 
+            if (!string.IsNullOrWhiteSpace(value)) 
+                description = value; }
     }
 
     public double Weight
     {
-        get { return weight; }
-        set
-        {
+        get { 
+            return weight; }
+        set { 
             if (value > 0)
-            {
-                weight = value;
-            }
-        }
+                weight = value; }
     }
 
     public decimal DeliveryFee
     {
-        get { return deliveryFee; }
-        private set
-        {
-            if (value > 0)
-            {
-                deliveryFee = value;
-            }
-        }
+        get { 
+            return deliveryFee; }
+        private set { 
+            if (value > 0) 
+                deliveryFee = value; }
     }
 
     public DeliveryAddress Destination { get; set; }
 
     public decimal EstimatedCost
     {
-        get
-        {
-            return deliveryFee + (decimal)(weight * 5);
-        }
+        get { return deliveryFee + (decimal)(weight * 5); }
     }
 
     public Shipment(string trackingCode)
     {
-        this.trackingCode = "";
-        this.description = "";
-        this.weight = 1;
-        this.deliveryFee = 1;
-
-        TrackingCode = trackingCode;
-        Description = "Unknown";
-        Weight = 1;
-        DeliveryFee = 50;
-        Destination = new DeliveryAddress("Default City", "Default Street", 1);
+        this.trackingCode = trackingCode;
+        description = "Unknown";
+        weight = 1;
+        deliveryFee = 50;
+        Destination = new DeliveryAddress("Default", "Default", 1);
     }
 
     public Shipment(string trackingCode, string description, double weight, decimal deliveryFee, DeliveryAddress destination)
     {
-        this.trackingCode = "";
-        this.description = "";
-        this.weight = 1;
-        this.deliveryFee = 1;
-
-        TrackingCode = trackingCode;
-        Description = description;
-        Weight = weight;
-        DeliveryFee = deliveryFee;
+        this.trackingCode = trackingCode;
+        this.description = description;
+        this.weight = weight;
+        this.deliveryFee = deliveryFee;
         Destination = destination;
     }
 
     public void UpdateDeliveryFee(decimal newFee)
     {
-        if (newFee > 0)
-        {
+        if (newFee > 0) 
             deliveryFee = newFee;
-        }
     }
 
     public void PrintShipment()
     {
-        Console.WriteLine("Tracking Code: " + TrackingCode);
-        Console.WriteLine("Description: " + Description);
-        Console.WriteLine("Weight: " + Weight);
-        Console.WriteLine("Delivery Fee: " + DeliveryFee);
-        Console.WriteLine("Destination: " + Destination.GetFullAddress());
-        Console.WriteLine("Estimated Cost: " + EstimatedCost);
+        Console.WriteLine("Code:" + TrackingCode + " | Desc:" + Description + " | Cost:" + EstimatedCost);
     }
 }
+
+public struct DeliveryCenter
+{
+    private Shipment[] shipments;
+    private int count;
+
+    public DeliveryCenter()
+    {
+        shipments = new Shipment[10];
+        count = 0;
+    }
+
+    public Shipment this[int index]
+    {
+        get { return (index >= 0 && index < count) ? 
+                shipments[index] : 
+                default; }
+        set { if (index >= 0 && index < count) 
+                shipments[index] = value; }
+    }
+
+    public Shipment this[string trackingCode]
+    {
+        get
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (shipments[i].TrackingCode == trackingCode) return shipments[i];
+            }
+            return default;
+        }
+    }
+
+    public bool AddShipment(Shipment shipment)
+    {
+        if (count < 10)
+        {
+            shipments[count] = shipment;
+            count++;
+            return true;
+        }
+        return false;
+    }
+}
+#endregion
